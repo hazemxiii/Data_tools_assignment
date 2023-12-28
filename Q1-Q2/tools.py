@@ -1,6 +1,9 @@
 from cmath import inf
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.cluster.hierarchy import dendrogram
+from scipy.spatial.distance import cdist
 
 # to get each element in a cluster to compare ditances between each combination of clusters
 def flattenCluster(c):
@@ -25,6 +28,7 @@ def clusterD(c1,c2,d):
     c2 = flattenCluster(c2)
 
 # we start with distance = infinity and try to minimize it
+# if we wanted to make complete linkage we would start at distance = 0 and try to maximize it
     distance = inf
     for i in c1:
         for j in c2:
@@ -34,10 +38,15 @@ def clusterD(c1,c2,d):
 
 # dissimilarity matrix
 d = pd.DataFrame([[0,1,4],[1,0,2],[4,2,0]])
+# linkage matrix
+l = []
 index = []
+# we give each cluster an index to construct linkage matrix
+all_indexes = {}
 # giving points names
 for x in range(1,4):
     index.append(f'p{x}')
+    all_indexes[f'p{x}'] = x-1
 d.index = index
 d.columns = index
 
@@ -56,7 +65,17 @@ while len(iterations[-1])>1 and it < 10:
     # merge clusters that has minimum distances if they have not been merged yet
     for x in range(len(i[0])):
         if i[0][x]>i[1][x] and i[0][x] not in clustered and i[1][x] not in clustered:
-            new_clusters.append((d2.index[i[1][x]],d2.index[i[0][x]]))
+            i0 = d2.index[i[0][x]]
+            i1 = d2.index[i[1][x]]
+            new_clusters.append((i1,i0))
+            all_indexes[(i1,i0)]=len(all_indexes.keys())
+            # add a row in linkage matrix that contains the index of first cluster and second, the distance between them, and the total number of points in both of them
+            l.append([
+                float(all_indexes[i0]),
+                float(all_indexes[i1]),
+                float(clusterD(i0,i1,d)),
+                float(len(flattenCluster(i0))+len(flattenCluster(i1)))
+                ])
             clustered.append(i[0][x])
             clustered.append(i[1][x])
 
@@ -92,3 +111,6 @@ print("Clusters: ",end='')
 for x in iterations[-1].index:
     c.append(x)
 print(c)
+
+dendrogram(np.array(l),labels=d.index)
+plt.show()

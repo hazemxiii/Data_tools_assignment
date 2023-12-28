@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.neighbors import NearestNeighbors
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import cdist
-
+import pandas as pd
 
 # Generate sample data (replace this with your dataset)
 X = np.array([[1,1],
@@ -13,7 +13,10 @@ X = np.array([[1,1],
 [3,4],
 [4,3],
 [4,4]])
-
+l = 'p1 p2 p3 p4 p5 p6 p7 p8'.split()
+d = (pd.DataFrame(cdist(X,X,metric='euclidean'),columns=l,index = l))
+print(d[d['p1']<=1.42])
+exit()
 
 # Function to calculate k-distance for each data point
 def calculate_k_distance(X, k):
