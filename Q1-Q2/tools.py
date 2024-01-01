@@ -44,7 +44,7 @@ index = []
 # we give each cluster an index to construct linkage matrix
 all_indexes = {}
 # giving points names
-for x in range(1,4):
+for x in range(1,len(d)+1):
     index.append(f'p{x}')
     all_indexes[f'p{x}'] = x-1
 d.index = index
